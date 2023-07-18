@@ -23,19 +23,78 @@
 </head>
 <body>
     <div id="canvas-container"></div>
+    <button id="save-button">Save Image</button>
 
     <script>
         let capture;
+        let saveButton;
 
         function setup() {
             let canvas = createCanvas(640, 480);
             canvas.parent('canvas-container');
             capture = createCapture(VIDEO);
             capture.hide();
+
+            // Button setup
+            saveButton = select('#save-button');
+            saveButton.mousePressed(saveImage);
         }
 
         function draw() {
             image(capture, 0, 0, 640, 480);
+        }
+
+        async function saveImage() {
+            loadPixels(); // This is necessary to load the pixels of the current frame for get()
+
+            let img = get(); // This gets the current frame as a p5.Image
+            img.loadPixels(); // This loads the pixels of the image for .pixels[]
+
+            // Convert image to base64 string
+            let base64Image = img.canvas.toDataURL();
+
+            // Get current timestamp
+            let timestamp = new Date().toISOString();
+
+            // Get current geolocation
+            let coords = await getGeolocation();
+
+            // Store data into JSON object
+            let imgObj = {
+                timestamp: timestamp,
+                base64Image: base64Image,
+                latitude: coords.latitude,
+                longitude: coords.longitude
+            };
+
+            // Convert JSON object to string and download as a file
+            downloadJSON(imgObj, `image_data_${timestamp}.json`);
+        }
+
+        function getGeolocation() {
+            return new Promise((resolve, reject) => {
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        position => resolve(position.coords),
+                        error => reject(error)
+                    );
+                } else {
+                    reject(new Error('Geolocation not available'));
+                }
+            });
+        }
+
+        function downloadJSON(obj, filename) {
+            let data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(obj));
+
+            let a = document.createElement('a');
+            a.href = 'data:' + data;
+            a.download = filename;
+            a.innerHTML = 'download JSON';
+
+            var e = document.createEvent('MouseEvents');
+            e.initEvent('click', true, true);
+            a.dispatchEvent(e);
         }
     </script>
 </body>

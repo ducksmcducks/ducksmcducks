@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p5.js Camera</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #canvas-container {
+            width: 640px;
+            height: 480px;
+            border: 1px solid black;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <script>
+        let capture;
+
+        function setup() {
+            let canvas = createCanvas(640, 480);
+            canvas.parent('canvas-container');
+            capture = createCapture(VIDEO);
+            capture.hide();
+        }
+
+        function draw() {
+            image(capture, 0, 0, 640, 480);
+        }
+    </script>
+</body>
+</html>
